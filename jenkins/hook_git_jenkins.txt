@@ -1,0 +1,15 @@
+https://www.youtube.com/watch?v=A2tdTPHo6go
+
+Dans Jenkins, installer les plugins GitLab, GitLabHook
+
+Dans GitLab, aller dans Setting > Integrations.
+Dans la partie Project Services, on clique sur Jenkins CI. On vérifie que les cases Push Event will be triggered by a push to the repository) et Active sont bien cochées. Coller l'URL du Jenkins. Completer les cases Project_name, Username, Password.
+
+Dans Jenkins, créer un Free-styl project.
+Dans l'onglet General, dans la partie Source Code Management, coller l'URL du Git repository. Le Branch  */master  est enlevé.
+Dans l'onglet Build Triggers, doit être cochée la case "Build when a change is pushed to GitLab". Sont aussi cochées "Push Events", "Open Merge Request events", Approved Merge Requests", "Comments". "Rebuild Merge Request Events" est sur "Never".
+
+https://shadow-soft.com/jenkins-jobs-with-gitlab-webhooks/
+
+Maven : 
+https://www.youtube.com/watch?v=s73nhwYBtzE

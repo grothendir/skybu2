@@ -1,0 +1,55 @@
+# From https://awsbloglink.wordpress.com/2018/10/08/how-to-install-jenkins-using-ansible-version-2018/
+# Target OS : Amazon Linux 2 
+# TO BE TESTED on Centos 7.6
+---
+- name: Install Jenkins
+  hosts: jenkins
+  gather_facts: false
+  become: true
+  tasks:
+    - name: INSTALL wget java
+      yum:
+        name:
+          - wget
+          - java-1.8.0-openjdk
+
+    - name: DOWNLOAD jenkins.repo
+      get_url:
+        url: http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: IMPORT Jenkins Key
+      rpm_key:
+        state: present
+        key: https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+    - name: INSTALL Jenkins
+      yum:
+        name: jenkins
+        state: present
+
+    - name: START & Enable Jenkins
+      systemd:
+        name: jenkins
+        state: started
+        enabled: true
+
+    - name: SLEEP for 30 seconds and continue with play
+      wait_for: timeout=30
+
+    - name: GET init password Jenkins
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      changed_when: false
+      register: result
+
+    - name: PRINT init password Jenkins
+      debug:
+        var: result.stdout
+
+    - name: "OPEN 8080 port in firewall"
+      firewalld:
+        port: 8080/tcp
+        permanent: yes
+        immediate: yes
+        zone: public
+        state: enabled

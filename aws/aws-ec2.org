@@ -1,0 +1,57 @@
+* introduction
+
+** tableau de bord
+photo
+ + 1) la liste des ressources qui tournent dans EC2. Par exemple "Instances en cours" indique le nombre de serveurs qui tournent.
+ + 2) le bouton "lancer une instance", si on souhaite lancer un nouveau serveur.
+ + 3) la liste des sous-services de EC2. 
+** services
+*** instances
+cette page indique l'état des serveurs.
+
+photo
+#+CAPTION:
+#+NAME:
+[[~/Images/'Capture du 2019-01-11 10-29-04.png']]
+
+*** images
+Le lien AMI affiche les images de vos instances EC2 (AMI signifie : Amazon Machine Image).
+
+On se sert souvent d'un AMI au départ pour lancer un serveur EC2 préconfiguré . 
+On récupèrera pour notre part un AMI proposé par Amazon ou par sa communauté sur le "Marketplace" (on y trouve des AMI gratuits et payants).
+
+Il est aussi possible de créer vos propres AMI à partir de vos serveurs. L'intérêt est de permettre de prendre un instantané (backup) d'un serveur.
+d'en faire une sauvegarde, ce qui permet de lancer un nouveau serveur exactement dans le même état.
+*** Elastic Block Store
+La section *Volumes* affiche tous les disques utilisés par les serveurs. Avec AWS, on distingue en effet l'instance
+(juste la puissance de calcul du processeur) et les disques (Elastic Block Store, ou EBS). Les volumes EBS sont en quelque sorte des disques durs.
+
+Quant aux *Instantanés*, ce sont les sauvegardes des disques EBS de vos serveurs.
+
+*** Réseau et sécurité
+Les *Groupes de sécurité* constituent les règles de sécurité pour gérer le trafic entrant et sortant des serveurs.
+ C'est comme ça que l'on peut mettre en place un firewall (pare-feu)  pour protéger les serveurs.
+
+Les *Adresses IP Elastic* vous permettent d'affecter une IP statique aux serveurs. C'est utile car, par défaut, un serveur
+ que l'on redémarre va en général changer d'adresse IP. Grâce aux IP Elastic,on pouvez faire en sorte que le serveur garde la même IP 
+(ce qui est indispensable si on veux héberger correctement un site web).
+
+Les *Paires de clés* affichent les paires de clés créées pour accéder aux serveurs en SSH.
+
+*** Équilibrage de charge
+photo
+En cas de traffic important, l'équilibrage de charge (Elastic Load Balancing)  permet d'envoyer le trafic vers plusieurs serveurs en choisissant
+ automatiquement le serveur qui est actuellement le moins occupé.
+
+*** Auto Scaling
+Si vous avez un trafic qui augmente ou qui diminue, l'Auto Scaling vous permet d'ajouter ou de retirer des serveurs en fonction du trafic.
+
+* choisir un type d'instance
+
+* Lancer une instance
+
+* Se connecter à une instance
+
+* La ligne de commande d'AWS
+
+  

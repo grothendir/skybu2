@@ -1,0 +1,103 @@
+=====================
+Documentation : 
+=====================
+
+https://stackoverflow.com/questions/43863595/jenkins-pipeline-docker-withserver-does-not-execute-docker-commands-on-rem
+
+https://jenkins.io/doc/pipeline/steps/docker-workflow/#withdockerserver-sets-up-docker-server-endpoint
+
+=================================
+Installation
+================================
+
+Installer Maven 3.6.0, Java 8, Jenkins.
+Mettre Maven dans le PATH.
+Dans Jenkins, installer les plugs in suggérés, en plus des plugs in relatifs à gitlab, maven, pipeline
+Configurer le projet jenkins avec la bonne version de maven et du jdk. Rentrer la clé Oracle.
+
+
+
+==================
+Stratégie :
+====================
+
+Du code est déposé sur GitLab.
+
+GitLab transmet ce code Jenkins qui se trouve sur un serveur (Continuous Integration). Dans un pipeline, Jenkins et Maven vont générer un fichier jar à partir de ce code, qui se trouve dans le dossier /var/lib/jenkins/workspace/nomDuProjet/. Dans ce même répertoire, on a un script shell qui va envoyer le jar sur un autre serveur (d'homologation). On va prendre le vps de Soumana. Ce même script shell va également exécuter, à distance, un script shell se trouvant sur le serveur de Soumana, lequel va générer une image Docker à laquelle on ajoute le jar. Cette image Docker va être envoyée à AWS.
+
+Dès réception de l'image Docker, AWS va déployer un conteneur Docker avec ECR (Elastic Container Registry).
+
+=======================================================================
+Ce que Ky Nam et Soumana a fait aujourd'hui le mardi 15 janvier 2019
+=======================================================================
+
+>> Sur le serveur bac-à-sable de Ky Nam
+ - Ajout de code dans le pipeline (A vérifier) pour envoyer le jar vers le serveur bac-à-sable de Soumana et pour exécuter (en ssh) à distance le script dockerbuild.sh qui se trouve également sur le même serveur.
+
+
+>> Sur le serveur bac-à-sable de Soumana :
+ - Création du répertoire /home/soumana/jenkinstmp où se trouveront tous les fichiers suivants.
+ - Création de deux fichiers html qui s'afficheront à la réception du fichier jar (A vérifier)
+ - Création du Dockerfile (avec une image Tomcat) qui intégrera le fichier jar reçu  (A vérifier)
+ - Création du fichier dockerbuild.sh qui sera lancé par une commande ssh issue du Jenkins  (A terminer)
+
+
+=====================
+Code du pipeline
+====================
+
+node {
+    stage('PWD'){
+        sh 'pwd'
+    }
+    stage('Checkout'){
+        git branch: 'develop', url: 'https://github.com/virtus1er/ajc-jenkins.git'
+    }
+    
+    stage ('Build'){
+         withMaven( maven: 'maven311', jdk: 'jdk8'){
+           // sh "mvn clean verify"   Attention verify fait bugger
+           sh "mvn clean package"
+        }
+    
+        step([$class: 'JUnitResultArchiver', testResults: 'target/surefire-reports/*.xml'])
+        step([$class: 'JUnitResultArchiver', testResults: 'target/failsafe-reports/*.xml'])
+    
+        dir ('target') { archive '*.jar'}
+            stash name : 'binary', includes : 'target/*.jar'
+    }
+    
+    stage ('Send jar to Homologation server'){
+    //    scp ./snapshot.jar soumana@vps196235:/home/soumana/jenkinstmp
+    }
+    
+    stage ('Build docker image'){
+        // scp soumana@vps196235 /home/soumana/jenkinstmp/dockerbuild.sh
+    }
+    
+
+}
+
+=================================
+Code du Dockerfile de Soumana
+=================================
+
+FROM tomcat
+
+WORKDIR /usr/local/tomcat
+COPY snapshot.jar /usr/local/tomcat/
+EXPOSE 8080
+CMD ["java", "-jar", "snapshot.jar"]
+
+=======================================
+Code du dockerbuild.sh
+====================================
+ #!/bin/bash
+
+docker build -t skybu .  &&  (A compléter)
+
+
+
+
+
+

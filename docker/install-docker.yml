@@ -1,0 +1,41 @@
+---
+- name: "Install docker"
+  gather_facts: No
+  hosts: docker
+
+  tasks:
+    - name: "INSTALL docker pre-requisites : yum-utils device-mapper-persistent-data lvm2"
+      yum:
+        name: "yum-utils, device-mapper-persistent-data, lvm2"
+        state: "present"
+
+    # NON WORGING METHOD add the url don't download docker-ce.repo
+    # - name: "ADD Docker repository"
+    #   yum_repository:
+    #     name: "docker-ce"
+    #     description: "DOCKER-CE YUM repo"
+    #     baseurl: "https://download.docker.com/linux/centos/docker-ce.repo"
+    #     enabled: yes
+
+    - name: "ADD Docker repository"
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: 0644
+
+    - name: "INSTALL Docker"
+      yum:
+        name: docker-ce
+        state: present
+
+    - name: "START Docker service"
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: "Add user {{ansible_user}} to docker group"
+      user:
+        name: "{{ansible_user}}"
+        groups: docker
+        append: yes
